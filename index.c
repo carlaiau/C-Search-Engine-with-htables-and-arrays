@@ -65,12 +65,7 @@ int main(int argc, char *argv []) {
     }
     fclose(file_handle);  
 
-    htable_print(inverted_index);
-	if(htable_search(inverted_index,  argv[2])){
-		printf("Found:%s\n\n", argv[2]);
-	}
-	else{
-		printf("Missing:%s\n\n", argv[2]);
-	}
+	/* Create Index files */
+	htable_save(inverted_index);
     return 0;
 }

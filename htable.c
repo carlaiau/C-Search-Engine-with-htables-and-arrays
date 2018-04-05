@@ -172,3 +172,33 @@ void htable_print(htable h){
     }
     printf("Number of words entered: %d\n\n", h->num_words);
 }
+
+int htable_save(htable h) {
+    unsigned int line = 0;
+    unsigned int i = 0;
+    FILE *dict_file_pointer = fopen("index/dictionary" , "w");
+    /* We're appending this, not overwriting */
+    FILE *listings_file_pointer = fopen("index/listings" , "a");
+    if(dict_file_pointer == NULL){
+        fprintf(stderr, "dictionary open fail");
+        return EXIT_FAILURE;
+    }
+    if(listings_file_pointer == NULL){
+        fprintf(stderr, "dictionary open fail");
+        return EXIT_FAILURE;
+    }
+    for(i = 0; i < h->capacity; i++){
+        if( h->listings[i].word != NULL){
+            fprintf(
+                dict_file_pointer, 
+                "%s %d %d\n", 
+                h->listings[i].word, 
+                line++, 
+                h->listings[i].freq
+            );
+            flexarray_save(h->listings[i].postings, listings_file_pointer);
+        }
+    }
+    return EXIT_SUCCESS;
+
+}

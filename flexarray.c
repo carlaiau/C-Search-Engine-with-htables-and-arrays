@@ -51,9 +51,21 @@ void flexarray_append(flexarray f, long id){
 /* Prints this flexarray */
 void flexarray_print(flexarray f) {
     int i;
-
     for (i = 0; i < f->num_docs; i++) {
         printf("%d: %lu\t", f->postings[i].count, f->postings[i].docid);
 
     }
+}
+
+void flexarray_save(flexarray f, FILE* listings_file_pointer){
+    int i;
+    for (i = 0; i < f->num_docs; i++) {
+        fprintf(
+            listings_file_pointer,
+            "%d %lu\t", 
+            f->postings[i].count, 
+            f->postings[i].docid
+        );
+    }
+    fprintf(listings_file_pointer, "\n");
 }

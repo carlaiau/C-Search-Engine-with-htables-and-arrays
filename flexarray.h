@@ -10,5 +10,5 @@ extern void flexarray_print(flexarray f);
 
 extern long flexarray_get_last_id(flexarray f);
 extern void flexarray_updatecount(flexarray f);
-
+extern void flexarray_save(flexarray f, FILE* listings_file_pointer);
 #endif
