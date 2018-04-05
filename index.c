@@ -6,7 +6,7 @@
 #include "flexarray.h"
 
 #define BUFFER_SIZE 4048
-#define NUM_WORDS 10000 /* ~750,000 unique words */
+#define NUM_WORDS 100000 /* ~750,000 unique words */
 
 /* first go at indexing */
 int main(int argc, char *argv []) {
