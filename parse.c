@@ -7,13 +7,14 @@
 
 void output_id(char *token);
 void output_date(char *token);
-void output_clean(char *token);
+char* output_clean(char *token);
 
 int main(int argc, char *argv []) {
 	int id, date = 0; /* expecting id, date bool */
 	FILE *file_handle;
 	const char *delim = " $.,\"\'\n();:{}+^#@*";
 	char buffer[BUFFER_SIZE];
+	char* temp_token;
 	file_handle = fopen(argv[1], "r");
 
 
@@ -49,7 +50,10 @@ int main(int argc, char *argv []) {
             }
 			/* This is normal content */
 			else{
-				output_clean(token);
+				temp_token = output_clean(token);
+				if(temp_token[0] != '\0'){
+					printf("%s\n", temp_token);
+				}
 			}
 			token = strtok(NULL, delim);
 		}
@@ -91,12 +95,12 @@ void output_date(char* token){
 	free(temp_token);
 }
 
-void output_clean(char *token){
+char* output_clean(char *token){
 	unsigned int i;
 	unsigned int inner_i = 0;
 	/* local var rather than double look */
 	unsigned int len = strlen(token);
-	char* temp_token = malloc( len * sizeof(temp_token[0]) + 1 );
+	char* temp_token = malloc( (len + 1 )* sizeof(temp_token[0]));
 
 	/* Make sure token is not an & */	
 	if(strcmp(token, "&amp") != 0 && len > 1){
@@ -118,8 +122,5 @@ void output_clean(char *token){
 		}
 	}
 	temp_token[inner_i] = '\0';
-	if(temp_token[0] != '\0'){
-		printf("%s\n", temp_token);
-	}
-	free(temp_token);
+	return temp_token;
 }

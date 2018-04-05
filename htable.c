@@ -48,14 +48,10 @@ static unsigned int htable_step(htable h, unsigned int i_key){
 
 
 
-int htable_insert(htable h, char *token, int docid){
+int htable_insert(htable h, char *token, long docid){
     int attempts = 0;
     int insert_index = 0;
-
-    unsigned int long hash = 0;
-    hash = htable_word_int(token);
-    insert_index = hash % h->capacity;
-
+    insert_index = htable_word_int(token) % h->capacity;
 
     /* Possibility 1: Nothing at word key */
     if(h->listings[insert_index].word == NULL){
@@ -99,7 +95,7 @@ int htable_insert(htable h, char *token, int docid){
             (h->listings[insert_index]).word = emalloc((strlen(token) + 1) * sizeof(token[0]) );
             
             /* Copy word into the word key at listings position */
-            strcpy((h->listings[insert_index]).word, token);    
+            strcpy( (h->listings[insert_index]).word , token);    
             
             /* Make new flex array for these postings */
             (h->listings[insert_index]).postings = flexarray_new();
@@ -130,6 +126,33 @@ int htable_insert(htable h, char *token, int docid){
     return 0;
 }
 
+/**
+ * Searches the hash table for the given value.
+ *
+ * @param h the htable to be searched.
+ * @param s the value to search the hash table with.
+ * @return whether the value was found or not.
+ */
+int htable_search(htable h, char* search_term){
+    int i;
+    int index = htable_word_int(search_term) % h->capacity;
+    int step =  htable_step(h, htable_word_int(search_term));
+
+    for (i = 0; i <= h->capacity; i++){  
+        printf("Index looking at: %d\n", index);
+        if (h->listings[index].word == NULL){
+            return 0;
+        } 
+        else if(strcmp( h->listings[index].word, search_term) == 0){
+            return 1;
+        } 
+        else {
+            index = (index + step) % h->capacity;
+        }
+    }
+    return 0;
+    
+}
 
 /**
  * Prints out all the words stored in the hashtable and the frequency of
@@ -140,15 +163,12 @@ int htable_insert(htable h, char *token, int docid){
  */
 void htable_print(htable h){
     int i;
-    for (i = 0; i < h->num_words; i++){
-
+    for (i = 0; i < h->capacity; i++){
         if ( (h->listings[i]).word != NULL) {
-
-            printf("\n%d %s ", i, (h->listings[i]).word);
+            printf("%d: %s\n", i, (h->listings[i]).word);
             flexarray_print((h->listings[i]).postings);
-            printf("\n");
-            
+            printf("\n\n");
         }
     }
-    printf("Number of words entered: %d\n", h->num_words);
+    printf("Number of words entered: %d\n\n", h->num_words);
 }

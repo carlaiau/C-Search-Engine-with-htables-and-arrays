@@ -12,7 +12,7 @@ struct flexarrayrec {
 
 struct posting_rec {
     int count;
-    int docid;
+    long docid;
 };
 
 
@@ -39,7 +39,7 @@ long flexarray_get_last_id(flexarray f) {
 
 }
 /* Adds a new docid for this term */
-void flexarray_append(flexarray f, int id){
+void flexarray_append(flexarray f, long id){
     if (f->num_docs == f->capacity){
         f->capacity *= 2;
         f->postings = erealloc(f->postings, (f->capacity) * sizeof(posting));
@@ -53,7 +53,7 @@ void flexarray_print(flexarray f) {
     int i;
 
     for (i = 0; i < f->num_docs; i++) {
-        printf("%d\t%d\t", f->postings[i].count, f->postings[i].docid);
+        printf("%d: %lu\t", f->postings[i].count, f->postings[i].docid);
 
     }
 }
