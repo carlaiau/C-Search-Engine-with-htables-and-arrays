@@ -1,6 +1,7 @@
 data/*
 output/*
 built/*
+index/*
 *.xml
 *.xml
 *.txt
