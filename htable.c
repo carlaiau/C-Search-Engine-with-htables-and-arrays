@@ -18,7 +18,6 @@ struct dict_rec{
     flexarray listings;
     int freq;
     unsigned int pos;
-    unsigned int len;
 };
 
 htable htable_new(int capacity){
@@ -146,12 +145,14 @@ void htable_print(htable h){
     function.
     */
 int htable_save(htable h) {
-    unsigned int line = 0;
     unsigned int i = 0;
+    unsigned long pos = 0;
+    unsigned long length = 0;
     
     FILE *dict_file_pointer = fopen("index/dictionary" , "w");
+    
     /* We're appending this, not overwriting */
-    FILE *listings_file_pointer = fopen("index/listings" , "a");
+    FILE *listings_file_pointer = fopen("index/listings" , "w");
     if(dict_file_pointer == NULL){
         fprintf(stderr, "dictionary open fail");
         return EXIT_FAILURE;
@@ -163,14 +164,17 @@ int htable_save(htable h) {
 
     for(i = 0; i < h->capacity; i++){
         if( h->dictionary[i].word != NULL){
+            length = flexarray_save(h->dictionary[i].listings, listings_file_pointer);
             fprintf(
                 dict_file_pointer, 
-                "%s %d %d\n", 
+                "%d %s %d %lu %lu\n", 
+                i,
                 h->dictionary[i].word, 
-                line++, 
-                h->dictionary[i].freq
+                h->dictionary[i].freq,
+                pos,
+                length
             );
-            flexarray_save(h->dictionary[i].listings, listings_file_pointer);
+            pos += length;
         }
     }
     return EXIT_SUCCESS;

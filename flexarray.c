@@ -57,18 +57,36 @@ void flexarray_print(flexarray f) {
     }
 }
 
-void flexarray_save(flexarray f, FILE* listings_file_pointer){
+unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
     unsigned int i;
+    unsigned int length = 0;
+    unsigned long first_docid = 0;
     qsort(f->listings, f->num_docs, sizeof(listing), flexarray_compare_docid);
+    
+    /* compress listing docids */
+    first_docid = f->listings[0].doc_id;
+
     for (i = 0; i < f->num_docs; i++) {
-        fprintf(
-            listings_file_pointer,
-            "%d %lu\t", 
-            f->listings[i].count, 
-            f->listings[i].doc_id
-        );
+
+        if(i > 0){ /* only save listing id difference */
+            length += fprintf(
+                listings_file_pointer,
+                "%lu %d ", 
+                f->listings[i].doc_id - first_docid,
+                f->listings[i].count
+            );
+        }
+        else{
+            length+= fprintf(
+                listings_file_pointer,
+                "%lu %d ", 
+                f->listings[i].doc_id,
+                f->listings[i].count
+            );
+        }
     }
-    fprintf(listings_file_pointer, "\n");
+    length += fprintf(listings_file_pointer, "\n");
+    return length;
 }
 
 /* Compare doc_ids. Used in qsort */
