@@ -1,15 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "mylib.h"
-#include "htable.h"
-#include "flexarray.h"
+#include "index.h"
 
 #define BUFFER_SIZE 4048
 #define NUM_WORDS 100000 /* ~750,000 unique words */
 
 /* first go at indexing */
-int create_index(){
+int create_index(char* input_file){
 	unsigned long current_doc_id = 0 ;
 	int word_count = 0;
 	/* Flip Flop, whether next token is Doc ID or word */
@@ -18,13 +13,14 @@ int create_index(){
 
 	FILE *parsed_file_handle;	
 	char buffer[BUFFER_SIZE];
-	parsed_file_handle = fopen("parsed/ready", "r");
+	parsed_file_handle = fopen(input_file, "r");
 
     if (!parsed_file_handle) {
         fprintf(stderr, "Unable to open input!\n");
         return 1;
     }
-    /* Instantiate the htable */
+    
+	/* Instantiate the htable */
     inverted_index = htable_new(NUM_WORDS);
     /* read each line into the buffer */
     while(fgets( buffer, BUFFER_SIZE, parsed_file_handle) != NULL){
@@ -45,9 +41,9 @@ int create_index(){
 				/* 
 					This is to resolve bug from not using delimiter on strtok.
 					Without this, the words are indexed with the \n on the end, 
-					and strcmp does not work. Nasty, fix if have time. Would not 
+					and strcmp does not work. Nasty, can fix if have time. Would not 
 					happen if not outputting to intermediate text file for the 
-					parsing part of assessment 
+					parsing part of assessment.
 				*/
 				token[strlen(token) -1 ] = '\0';
         		htable_insert(inverted_index, token, current_doc_id);
@@ -60,3 +56,4 @@ int create_index(){
 	htable_save(inverted_index);
     return 0;
 }
+

@@ -5,65 +5,7 @@
 
 #define BUFFER_SIZE 10000
 
-void output_id(char *token);
-void output_date(char *token);
-char* output_clean(char *token);
-
-int main(int argc, char *argv []) {
-	int id, date = 0; /* expecting id, date bool */
-	FILE *file_handle;
-	const char *delim = " $.,\"\'\n();:{}+^#@*";
-	char buffer[BUFFER_SIZE];
-	char* temp_token;
-	file_handle = fopen(argv[1], "r");
-
-
-    if (!file_handle) {
-        fprintf(stderr, "Unable to open input!\n");
-        return 1;
-    }
-	
-	/* read each line into the buffer */
-    while(fgets( buffer, BUFFER_SIZE, file_handle) != NULL){
-    	/* splits based on delimitering strings */
-    	char *token = strtok(buffer, delim);		
-		while(token != NULL) {
-            if(id == 1) {
-				output_id(token);
-                id = 0;
-            }
-			if(date == 1){
-				output_date(token);
-				date = 0;
-			}
-			/* Is a Tag */
-            else if(token[0] == '<'){
-				/* Next Token will be ID */
-				if(strcmp(token, "<DOCNO>") == 0) {
-                    id = 1;
-                }
-				/* Next Token will be Date */
-				if(strcmp(token, "<DATE>") == 0 ||
-					strcmp(token, "<DD>") == 0){
-					date = 1;
-				}
-            }
-			/* This is normal content */
-			else{
-				temp_token = output_clean(token);
-				if(temp_token[0] != '\0'){
-					printf("%s\n", temp_token);
-				}
-			}
-			token = strtok(NULL, delim);
-		}
-	}
-	
-    fclose(file_handle);  
-	return 0;
-}
-
-void output_id(char* token){
+static void output_id(char* token){
 	unsigned int i;
 	unsigned int len = strlen(token);
 	if(len > 0){
@@ -74,28 +16,10 @@ void output_id(char* token){
 			printf("%c", token[i]);
 		}
 	}
-	printf("\n%s\n", token);
+	printf("\n");
 }
 
-/* Attempt to preverse date in data */
-void output_date(char* token){
-	unsigned int i;
-	unsigned int inner_i = 0;
-	unsigned int len = strlen(token);
-	char* temp_token = malloc( len * sizeof(temp_token[0]) + 1 );
-	for(i = 0; i < len && token[i] != '<'; i++){
-		if(isdigit(token[i]) || token[i] == '/'){
-			temp_token[inner_i++] = token[i];
-		}
-	}
-	temp_token[inner_i] = '\0';
-	if(temp_token[0] != '\0'){
-		printf("%s\n", temp_token);
-	}
-	free(temp_token);
-}
-
-char* output_clean(char *token){
+static char* output_clean(char *token){
 	unsigned int i;
 	unsigned int inner_i = 0;
 	/* local var rather than double look */
@@ -124,3 +48,50 @@ char* output_clean(char *token){
 	temp_token[inner_i] = '\0';
 	return temp_token;
 }
+
+
+
+
+int parse(char* input_filename){
+	int id = 0; /* expecting id, date bool */
+	FILE *file_handle;
+	const char *delim = " $.,\"\'\n();:{}+^#@*";
+	char buffer[BUFFER_SIZE];
+	char* temp_token;
+	file_handle = fopen(input_filename, "r");
+    if (!file_handle) {
+        fprintf(stderr, "Unable to open input!\n");
+        return 1;
+    }
+	
+	/* read each line into the buffer */
+    while(fgets( buffer, BUFFER_SIZE, file_handle) != NULL){
+    	/* splits based on delimitering strings */
+    	char *token = strtok(buffer, delim);		
+		while(token != NULL) {
+            if(id == 1) {
+				output_id(token);
+                id = 0;
+            }
+			/* Is a Tag */
+            else if(token[0] == '<'){
+				/* Next Token will be ID */
+				if(strcmp(token, "<DOCNO>") == 0) {
+                    id = 1;
+                }
+            }
+			/* This is normal content */
+			else{
+				temp_token = output_clean(token);
+				if(temp_token[0] != '\0'){
+					printf("%s\n", temp_token);
+				}
+			}
+			token = strtok(NULL, delim);
+		}
+	}
+	
+    fclose(file_handle);  
+	return 0;
+}
+

@@ -17,6 +17,8 @@ struct dict_rec{
     char* word;
     flexarray listings;
     int freq;
+    unsigned int pos;
+    unsigned int len;
 };
 
 htable htable_new(int capacity){
@@ -33,6 +35,7 @@ htable htable_new(int capacity){
     }
     return h;
 }
+
 
 static unsigned int htable_word_int(char *w){
     unsigned int result = 0;
@@ -160,9 +163,21 @@ void htable_print(htable h){
     printf("Number of words entered: %d\n\n", h->num_words);
 }
 
+/* 
+    Dictionay will be saved to a text file in the format
+    hash word freq pos len
+    
+    pos corresponds to the position that this words listings start in the 
+    listings file.
+    len corresponds to the length of this words listings 
+
+    pos and len are based on what is returned from the flex array print 
+    function.
+    */
 int htable_save(htable h) {
     unsigned int line = 0;
     unsigned int i = 0;
+    
     FILE *dict_file_pointer = fopen("index/dictionary" , "w");
     /* We're appending this, not overwriting */
     FILE *listings_file_pointer = fopen("index/listings" , "a");
@@ -174,9 +189,6 @@ int htable_save(htable h) {
         fprintf(stderr, "dictionary open fail");
         return EXIT_FAILURE;
     }
-
-    qsort(h->dictionary, h->capacity, sizeof(dict), htable_compare_words);
-    
 
     for(i = 0; i < h->capacity; i++){
         if( h->dictionary[i].word != NULL){
@@ -191,23 +203,4 @@ int htable_save(htable h) {
         }
     }
     return EXIT_SUCCESS;
-
-}
-
-int htable_compare_words(const void* first, const void* second) {
-    const dict* first_dict_listing = first;
-    const dict* second_dict_listing = second;
-    char* first_word = first_dict_listing->word;
-    char* second_word = second_dict_listing->word; 
-    /* Better play it safe, could remove after testing */
-    if (first_word == NULL && second_word == NULL) {
-        return 0;
-    }
-    if (first_word == NULL) {
-        return 1;
-    }
-    if (second_word == NULL) {
-        return -1;
-    }
-    return strcmp(first_word, second_word);
 }

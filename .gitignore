@@ -2,6 +2,7 @@ data/*
 output/*
 built/*
 index/*
+parsed/*
 *.xml
 *.xml
 *.txt

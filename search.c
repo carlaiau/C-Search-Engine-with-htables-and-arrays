@@ -10,7 +10,6 @@ int load_indexes(){
     size_t buffer_size = 500;
     int dict_index = 0;
     FILE* dict_file = fopen("index/dictionary", "r");
-    //FILE* listing_file = fopen("index/listings", "r");
     char** dictionary = emalloc(NUM_WORDS * sizeof(dictionary[0]));
     
     int* listings_id_per_word =   emalloc(NUM_WORDS * sizeof(int));
