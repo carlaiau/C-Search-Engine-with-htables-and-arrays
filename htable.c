@@ -55,53 +55,22 @@ int htable_insert(htable h, char *token, long docid){
     unsigned int attempts = 0;
     unsigned int insert_index = 0;
     insert_index = htable_word_int(token) % h->capacity;
-
-    /* Possibility 1: Nothing at word key */
-    if(h->dictionary[insert_index].word == NULL){
-        h->dictionary[insert_index].word = emalloc((strlen(token) + 1) * sizeof(token[0]));
-        /* Copy token into the word key at dictionary position */
-        strcpy((h->dictionary[insert_index]).word, token);    
-        /* Make new flex array for these listings */
-        h->dictionary[insert_index].listings = flexarray_new();
-
-        /* Append this docid to the flex array that already exists at this position */
-        flexarray_append( h->dictionary[insert_index].listings, docid);
-        
-        h->dictionary[insert_index].freq = 1;
-
-        h->num_words++;
-        h->count[insert_index]++;
-        return 1;
-    }
-
-    /* Possibility 2: Same word  at key */
-    if( strcmp(h->dictionary[insert_index].word, token) == 0 ){
-        h->count[insert_index]++;
-        if (flexarray_get_last_id(h->dictionary[insert_index].listings) != docid) {
-            flexarray_append(h->dictionary[insert_index].listings, docid);    
-            h->dictionary[insert_index].freq++;
-        } 
-        else{        
-            flexarray_updatecount(h->dictionary[insert_index].listings);
-        }
-        return 1;
-    }
-
-    /* Possiblity 3: Some other word at key */
-    for(attempts = 0; h->dictionary[insert_index].word != NULL && attempts < h->capacity; attempts++){
-        insert_index = htable_step(h, insert_index);
+    for(attempts = 0; attempts < h->capacity; attempts++){
         /* Possibility 1: Nothing at word key */
         if(h->dictionary[insert_index].word == NULL){
-            h->dictionary[insert_index].word = emalloc((strlen(token) + 1) * sizeof(token[0]) );
-            strcpy(h->dictionary[insert_index].word , token);    
+            h->dictionary[insert_index].word = emalloc((strlen(token) + 1) * sizeof(token[0]));
+            /* Copy token into the word key at dictionary position */
+            strcpy((h->dictionary[insert_index]).word, token);    
+            /* Make new flex array for these listings */
             h->dictionary[insert_index].listings = flexarray_new();
-            flexarray_append(h->dictionary[insert_index].listings, docid);
+            /* Append this docid to the flex array that already exists at this position */
+            flexarray_append( h->dictionary[insert_index].listings, docid);
             h->dictionary[insert_index].freq = 1;
             h->num_words++;
             h->count[insert_index]++;
             return 1;
         }
-        /* Possibility 2: Same word at key */
+        /* Possibility 2: Same word  at key */
         if( strcmp(h->dictionary[insert_index].word, token) == 0 ){
             h->count[insert_index]++;
             if (flexarray_get_last_id(h->dictionary[insert_index].listings) != docid) {
@@ -113,6 +82,8 @@ int htable_insert(htable h, char *token, long docid){
             }
             return 1;
         }
+        
+        insert_index = htable_step(h, insert_index);
     }
     return 0;
 }

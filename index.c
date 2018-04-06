@@ -1,7 +1,7 @@
 #include "index.h"
 
 #define BUFFER_SIZE 4048
-#define NUM_WORDS 100000 /* ~750,000 unique words */
+#define NUM_WORDS 1497 /* ~750,000 unique words */
 
 /* first go at indexing */
 int create_index(char* input_file){
