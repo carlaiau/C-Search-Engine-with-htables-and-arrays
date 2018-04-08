@@ -24,7 +24,10 @@ flexarray flexarray_new(){
     f->listings = emalloc((f->capacity) * sizeof(listing));
     return f;
 }
-
+static void flexarray_free(flexarray f){
+    free(f->listings);
+    free(f);
+}
 /* Updates count of term in document */
 void flexarray_updatecount(flexarray f) {
 
@@ -59,7 +62,7 @@ void flexarray_print(flexarray f) {
 
 unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
     unsigned int i;
-    unsigned int length = 0;
+    unsigned long length = 0;
     unsigned long first_docid = 0;
     qsort(f->listings, f->num_docs, sizeof(listing), flexarray_compare_docid);
     
@@ -69,7 +72,7 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
     for (i = 0; i < f->num_docs; i++) {
 
         if(i > 0){ /* only save listing id difference */
-            length += fprintf(
+            length += (unsigned long) fprintf(
                 listings_file_pointer,
                 "%lu %d ", 
                 f->listings[i].doc_id - first_docid,
@@ -77,7 +80,7 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
             );
         }
         else{
-            length+= fprintf(
+            length+= (unsigned long)  fprintf(
                 listings_file_pointer,
                 "%lu %d ", 
                 f->listings[i].doc_id,
@@ -85,9 +88,12 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
             );
         }
     }
-    length += fprintf(listings_file_pointer, "\n");
+    length += (unsigned long) fprintf(listings_file_pointer, "\n");
+    flexarray_free(f);
     return length;
 }
+
+
 
 /* Compare doc_ids. Used in qsort */
 int flexarray_compare_docid(const void* first, const void* second) {

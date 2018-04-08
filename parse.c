@@ -19,20 +19,25 @@ static void output_id(char* token){
 	printf("\n");
 }
 
-static char* output_clean(char *token){
+static void output_clean(char *token){
 	unsigned int i;
-	unsigned int inner_i = 0;
 	/* local var rather than double look */
 	unsigned int len = strlen(token);
-	char* temp_token = malloc( (len + 1 )* sizeof(temp_token[0]));
-
+	char previous_printed_char = '\n';
 	/* Make sure token is not an & */	
 	if(strcmp(token, "&amp") != 0 && len > 1){
 		/* we have a tag to remove */
-		if(token[len - 1] == '>'){ 
+		if(token[len - 1] == '>' || token[len - 2] == '>'){ 
 			for(i = 0; token[i] != '<'; i++){
 				if(isalpha(token[i])){
-					temp_token[inner_i++] =  tolower(token[i]);
+					printf("%c", tolower(token[i]));
+					previous_printed_char = token[i];
+				}
+				else if(token[i] == '/' || token[i] == '-' || token[i] == '('){
+					if(previous_printed_char != '\n'){
+						printf("\n");
+						previous_printed_char = '\n';
+					}
 				}
 			}
 		}
@@ -40,13 +45,21 @@ static char* output_clean(char *token){
 			/* Remove Non Alphabetical */
 			for(i = 0; i < len; i++){
 				if(isalpha(token[i])){
-					temp_token[inner_i++] =  tolower(token[i]);
+					printf("%c", tolower(token[i]));
+					previous_printed_char = token[i];
 				}
+				else if(token[i] == '/' || token[i] == '-' || token[i] == '('){
+					if(previous_printed_char != '\n'){
+						printf("\n");
+						previous_printed_char = '\n';
+					}
+				}			
 			}
 		}
 	}
-	temp_token[inner_i] = '\0';
-	return temp_token;
+	if(previous_printed_char != '\n'){
+		printf("\n");
+	}
 }
 
 
@@ -57,7 +70,6 @@ int parse(char* input_filename){
 	FILE *file_handle;
 	const char *delim = " $.,\"\'\n();:{}+^#@*";
 	char buffer[BUFFER_SIZE];
-	char* temp_token;
 	file_handle = fopen(input_filename, "r");
     if (!file_handle) {
         fprintf(stderr, "Unable to open input!\n");
@@ -82,10 +94,7 @@ int parse(char* input_filename){
             }
 			/* This is normal content */
 			else{
-				temp_token = output_clean(token);
-				if(temp_token[0] != '\0'){
-					printf("%s\n", temp_token);
-				}
+				output_clean(token);
 			}
 			token = strtok(NULL, delim);
 		}

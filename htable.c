@@ -17,7 +17,9 @@ struct dict_rec{
     char* word;
     flexarray listings;
     int freq;
+    /* these fields are used when htable dictionary is loaded from memory */
     unsigned int pos;
+    unsigned int long;
 };
 
 htable htable_new(int capacity){
@@ -144,6 +146,18 @@ void htable_print(htable h){
     pos and len are based on what is returned from the flex array print 
     function.
     */
+
+static void htable_free(htable h){
+    unsigned int i;
+    for(i = 0; i< h->capacity; i++ ){
+        if(h->dictionary[i].word != NULL){
+            free(h->dictionary[i].word);
+        }
+    }
+    free(h->dictionary);
+    free(h->count);
+    free(h);
+}
 int htable_save(htable h) {
     unsigned int i = 0;
     unsigned long pos = 0;
@@ -177,5 +191,25 @@ int htable_save(htable h) {
             pos += length;
         }
     }
+    htable_free(h);
     return EXIT_SUCCESS;
+}
+
+htable htable_load_from_file(FILE* dict_file, int capacity){
+    unsigned int i;
+    htable h = emalloc(sizeof *h);
+    h->capacity = capacity;
+    h->dictionary = emalloc(h->capacity * sizeof h->dictionary[0]);
+    h->count = calloc(h->capacity, sizeof(int));
+
+    char buffer[1000];
+    /* read each line into the buffer */
+    while(fgets( buffer, 1000, dict_file) != NULL){
+    	/* splits based on delimitering strings */
+    	char *token = strtok(buffer, "\n");
+        printf("%s", token);
+
+    }		
+
+    return h;
 }

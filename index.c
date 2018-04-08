@@ -2,7 +2,7 @@
 
 #define BUFFER_SIZE 4048
 #define NUM_WORDS 1000000 /* 1million unique words */
-#define NUM_DOCS 17500 /* 173252 via grep wc -l */
+#define NUM_DOCS 175000 /* 173252 via grep wc -l */
 
 struct key_pair_rec {
 	long docid;

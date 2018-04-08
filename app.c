@@ -8,6 +8,7 @@
 int main(int argc, char **argv){
     const char *optstring = "rs:pih";
     char option;
+    htable dict;
     while((option = getopt(argc, argv, optstring)) != EOF){
         switch(option){
             case 'p':
@@ -19,10 +20,15 @@ int main(int argc, char **argv){
                 fprintf(stderr, "Indexing!\ninput file: %s, this may take a while!\n\n", argv[2]);
                 create_index(argv[2]);
                 break;
-            case 'h':
+            case 's':
+                dict = load_indexes();
+                 
+                break;
+            case 'h':                            
             default:
                 fprintf(stderr, "\nUsage:\n-p\tfile_to_parse > output_file\n"); 
-                fprintf(stderr, "-i\tfile_to_index (Indexes will be created in index folder)\n"); 
+                fprintf(stderr, "-i\tfile_to_index (Indexes will be created in index folder)\n");
+                fprintf(stderr, "-s\tQuery to search for (Indexes will be loaded from index folder)\n");  
                 fprintf(stderr, "\n"); 
                 return EXIT_SUCCESS;
         }

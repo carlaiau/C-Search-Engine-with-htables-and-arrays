@@ -5,7 +5,15 @@
 #include "app.h"
 
 #define NUM_WORDS 900000
-int load_indexes(){
+
+htable load_indexes(){
+	FILE *dictionary_file = fopen("index/dictionary", "r");
+	FILE *listings_file = fopen("index/listings", "r");
+	FILE *wordcount_file = fopen("index/wordcount", "r");
+	htable dict = htable_load_from_file(dictionary_file, NUM_WORDS);
+}
+
+/*int load_indexes(){
     int i = 0; 
     size_t buffer_size = 500;
     int dict_index = 0;
@@ -39,3 +47,5 @@ int load_indexes(){
     return 0;
 
 }
+
+*/
