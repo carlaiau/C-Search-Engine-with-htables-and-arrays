@@ -1,7 +1,7 @@
 #include "index.h"
 
 #define BUFFER_SIZE 4048
-#define NUM_WORDS 1000000 /* 1million unique words */
+#define NUM_WORDS 250000 /* It's 218943, but indexs quicker with a bit of mem overflow */
 #define NUM_DOCS 175000 /* 173252 via grep wc -l */
 
 struct key_pair_rec {
@@ -9,10 +9,9 @@ struct key_pair_rec {
     int word_count;
 };
 
-
-
-
-/* first go at indexing */
+/* 
+ * Create the index data files
+ */
 int create_index(char* input_file){
 	htable inverted_index;
 	key_pair* list_of_word_counts;
@@ -20,6 +19,7 @@ int create_index(char* input_file){
 	unsigned int docs_entered = 0;
 	int words_in_doc = 0;
 	unsigned int i = 0;
+	
 	/* Flip Flop, whether next token is Doc ID or word */
 	int new_doc = 0;
 	char buffer[BUFFER_SIZE];

@@ -15,14 +15,14 @@ int main(int argc, char **argv){
                 fprintf(stderr, "Parsing! input file: %s\n\n", argv[2]);
                 parse(argv[2]);
                 break;
-
             case 'i':
                 fprintf(stderr, "Indexing!\ninput file: %s, this may take a while!\n\n", argv[2]);
                 create_index(argv[2]);
                 break;
             case 's':
                 dict = load_indexes();
-                 
+                
+                htable_print_loaded(dict);
                 break;
             case 'h':                            
             default:

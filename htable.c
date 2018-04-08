@@ -1,10 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "mylib.h"
 #include "htable.h"
-#include "flexarray.h"
-
 
 struct htablerec {
     unsigned int capacity;
@@ -18,8 +12,8 @@ struct dict_rec{
     flexarray listings;
     int freq;
     /* these fields are used when htable dictionary is loaded from memory */
-    unsigned int pos;
-    unsigned int long;
+    unsigned long pos;
+    unsigned int len;
 };
 
 htable htable_new(int capacity){
@@ -134,7 +128,19 @@ void htable_print(htable h){
     }
     printf("Number of words entered: %d\n\n", h->num_words);
 }
-
+void htable_print_loaded(htable h){
+    unsigned int i;
+    for (i = 0; i < h->capacity; i++){
+        if ( h->dictionary[i].word != NULL) {
+            printf("%s %d: t%lu %d\n", 
+                h->dictionary[i].word,
+                h->dictionary[i].freq,
+                h->dictionary[i].pos,
+                h->dictionary[i].len
+            );
+        }
+    }
+}
 /* 
     Dictionay will be saved to a text file in the format
     hash word freq pos len
@@ -195,21 +201,55 @@ int htable_save(htable h) {
     return EXIT_SUCCESS;
 }
 
+/* 
+ * Load Dictionary from index/file into hashtable, 
+ * no need to calculate hash insertion position as this was stored on
+ * index creation.
+ * We store the position and len of the associated listing flex array
+ * so that we can query the location of the fle array straight from disk 
+ */
 htable htable_load_from_file(FILE* dict_file, int capacity){
-    unsigned int i;
+    
+    
+    /* Variables to scanf into */
+    long listing_hash;
+    char listing_word[500];
+    int listing_freq;
+    unsigned long listing_pos;
+    int listing_len;
+
+
+    
+    char buffer_string[500];
+
+    int counter = 0;
+
     htable h = emalloc(sizeof *h);
     h->capacity = capacity;
     h->dictionary = emalloc(h->capacity * sizeof h->dictionary[0]);
     h->count = calloc(h->capacity, sizeof(int));
-
-    char buffer[1000];
-    /* read each line into the buffer */
-    while(fgets( buffer, 1000, dict_file) != NULL){
-    	/* splits based on delimitering strings */
-    	char *token = strtok(buffer, "\n");
-        printf("%s", token);
-
-    }		
-
+    
+    while (fgets(buffer_string, 500, dict_file) != NULL) {  ;
+        sscanf(
+            buffer_string,
+            "%lu %s %d %lu %d",
+            &listing_hash,
+            listing_word,
+            &listing_freq,
+            &listing_pos,
+            &listing_len
+        );
+    /*
+        printf("Word: %s\n", listing_word);
+        printf("Freq: %d\n", listing_freq);
+        printf("Pos: %lu\n", listing_pos);
+        printf("length: %d\n", listing_len);   
+    */  
+        h->dictionary[listing_hash].word = emalloc((strlen(listing_word) + 1) * sizeof(listing_word[0]));
+        strcpy(h->dictionary[listing_hash].word, listing_word);
+        h->dictionary[listing_hash].freq = listing_freq;
+        h->dictionary[listing_hash].pos = listing_pos;
+        h->dictionary[listing_hash].len = listing_len;
+    }   
     return h;
 }
