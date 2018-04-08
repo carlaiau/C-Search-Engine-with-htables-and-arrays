@@ -9,9 +9,10 @@ struct htablerec {
 
 struct dict_rec{
     char* word;
-    flexarray listings;
     int freq;
-    /* these fields are used when htable dictionary is loaded from memory */
+    /* Used when generating the index */
+    flexarray listings;
+    /* Used when loading index from file */
     unsigned long pos;
     unsigned int len;
 };
@@ -44,8 +45,11 @@ static unsigned int htable_step(htable h, unsigned int i_key){
     return 1 + (i_key % (h->capacity -1));
 }
 
-
-
+/* 
+ * Inserted new words into the dictionary. 
+ * Store related document array. If array already exists, then
+ * we append another document to this array 
+ * */
 int htable_insert(htable h, char *token, long docid){
     unsigned int attempts = 0;
     unsigned int insert_index = 0;
@@ -128,11 +132,11 @@ void htable_print(htable h){
     }
     printf("Number of words entered: %d\n\n", h->num_words);
 }
-void htable_print_loaded(htable h){
+void htable_print_loaded(htable h, int start, int finish){
     unsigned int i;
-    for (i = 0; i < h->capacity; i++){
+    for (i = start; i < h->capacity && i < finish; i++){
         if ( h->dictionary[i].word != NULL) {
-            printf("%s %d: t%lu %d\n", 
+            printf("%s %d %lu %d\n", 
                 h->dictionary[i].word,
                 h->dictionary[i].freq,
                 h->dictionary[i].pos,
@@ -167,10 +171,10 @@ static void htable_free(htable h){
 int htable_save(htable h) {
     unsigned int i = 0;
     unsigned long pos = 0;
-    unsigned long length = 0;
-    
+    unsigned int length = 0;
+
     FILE *dict_file_pointer = fopen("index/dictionary" , "w");
-    
+
     /* We're appending this, not overwriting */
     FILE *listings_file_pointer = fopen("index/listings" , "w");
     if(dict_file_pointer == NULL){
@@ -187,7 +191,7 @@ int htable_save(htable h) {
             length = flexarray_save(h->dictionary[i].listings, listings_file_pointer);
             fprintf(
                 dict_file_pointer, 
-                "%d %s %d %lu %lu\n", 
+                "%d %s %d %lu %d\n", 
                 i,
                 h->dictionary[i].word, 
                 h->dictionary[i].freq,
@@ -209,26 +213,18 @@ int htable_save(htable h) {
  * so that we can query the location of the fle array straight from disk 
  */
 htable htable_load_from_file(FILE* dict_file, int capacity){
-    
-    
     /* Variables to scanf into */
     long listing_hash;
     char listing_word[500];
     int listing_freq;
     unsigned long listing_pos;
     int listing_len;
-
-
-    
     char buffer_string[500];
-
     int counter = 0;
-
     htable h = emalloc(sizeof *h);
     h->capacity = capacity;
     h->dictionary = emalloc(h->capacity * sizeof h->dictionary[0]);
     h->count = calloc(h->capacity, sizeof(int));
-    
     while (fgets(buffer_string, 500, dict_file) != NULL) {  ;
         sscanf(
             buffer_string,
@@ -239,12 +235,6 @@ htable htable_load_from_file(FILE* dict_file, int capacity){
             &listing_pos,
             &listing_len
         );
-    /*
-        printf("Word: %s\n", listing_word);
-        printf("Freq: %d\n", listing_freq);
-        printf("Pos: %lu\n", listing_pos);
-        printf("length: %d\n", listing_len);   
-    */  
         h->dictionary[listing_hash].word = emalloc((strlen(listing_word) + 1) * sizeof(listing_word[0]));
         strcpy(h->dictionary[listing_hash].word, listing_word);
         h->dictionary[listing_hash].freq = listing_freq;

@@ -20,9 +20,15 @@ int main(int argc, char **argv){
                 create_index(argv[2]);
                 break;
             case 's':
-                dict = load_indexes();
-                
-                htable_print_loaded(dict);
+                dict = load_indexes();                
+                htable_print_loaded(dict, 0, 500);
+                /*if(htable_search(dict, argv[2])){
+                    printf("%s Found!\n", argv[2]);
+                }
+                else{
+                    printf("%s Not Found!\n", argv[2]);
+                }
+                */
                 break;
             case 'h':                            
             default:

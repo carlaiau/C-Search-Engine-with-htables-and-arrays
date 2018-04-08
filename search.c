@@ -10,7 +10,6 @@ htable load_indexes(){
         return NULL;
     }	
     dict = htable_load_from_file(dictionary_file, NUM_WORDS);
-    htable_print_loaded(dict);
     /*
 
     FILE *listings_file = fopen("index/listings", "r");
