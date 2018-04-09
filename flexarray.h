@@ -6,6 +6,9 @@ typedef struct listing_rec listing;
 
 extern flexarray flexarray_new();
 extern void flexarray_append(flexarray f, long id);
+
+extern void flexarray_append_count_known(flexarray f, long id, int count);
+
 extern void flexarray_print(flexarray f);
 
 extern long flexarray_get_last_id(flexarray f);

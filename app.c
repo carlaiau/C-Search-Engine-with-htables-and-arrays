@@ -10,6 +10,7 @@ int main(int argc, char **argv){
     char option;
     unsigned int hash;
     htable dict;
+    flexarray listings;
     while((option = getopt(argc, argv, optstring)) != EOF){
         switch(option){
             case 'p':
@@ -24,7 +25,8 @@ int main(int argc, char **argv){
                 dict = search_load_index();                
                 hash = htable_search(dict, argv[2]);
                 if(hash){
-                    search_get_listings(htable_get_pos(dict, hash), htable_get_len(dict, hash));
+                    listings = search_get_listings(htable_get_pos(dict, hash), htable_get_len(dict, hash));
+                    flexarray_print(listings);
                 }
                 else{
                     printf("%s Not Found!\n", argv[2]);

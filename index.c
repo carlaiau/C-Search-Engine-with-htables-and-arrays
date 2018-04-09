@@ -15,10 +15,10 @@ struct key_pair_rec {
 int create_index(char* input_file){
 	htable inverted_index;
 	key_pair* list_of_word_counts;
-	 long current_doc_id = 0;
-	 int docs_entered = 0;
+	unsigned long current_doc_id = 0;
+	unsigned int docs_entered = 0;
 	int words_in_doc = 0;
-	 int i = 0;
+	unsigned int i = 0;
 	
 	/* Flip Flop, whether next token is Doc ID or word */
 	int new_doc = 0;

@@ -9,6 +9,6 @@
 
 extern htable search_load_index();
 
-extern flexarray* search_get_listings(long pos, int len);
+extern flexarray search_get_listings(long pos, int len);
 
 #endif

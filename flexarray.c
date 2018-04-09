@@ -30,14 +30,11 @@ static void flexarray_free(flexarray f){
 }
 /* Updates count of term in document */
 void flexarray_updatecount(flexarray f) {
-
     (f->listings[f->num_docs - 1].count)++;
-
 }
 
 /* Returns the last written doc_id for this term */
 long flexarray_get_last_id(flexarray f) {
-
     return f->listings[f->num_docs - 1].doc_id;
 
 }
@@ -51,12 +48,20 @@ void flexarray_append(flexarray f, long id){
     f->listings[f->num_docs++].doc_id = id;
 }
 
+void flexarray_append_count_known(flexarray f, long id, int count){
+    if (f->num_docs == f->capacity){
+        f->capacity *= 2;
+        f->listings = erealloc(f->listings, (f->capacity) * sizeof(listing));
+    }
+    f->listings[f->num_docs].count = count;
+    f->listings[f->num_docs++].doc_id = id;  
+}
+
 /* Prints this flexarray */
 void flexarray_print(flexarray f) {
      int i;
     for (i = 0; i < f->num_docs; i++) {
         printf("%d: %lu\t", f->listings[i].count, f->listings[i].doc_id);
-
     }
 }
 
