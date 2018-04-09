@@ -1,8 +1,8 @@
 #include "htable.h"
 
 struct htablerec {
-    unsigned int capacity;
-    unsigned int num_words;
+    int capacity;
+    int num_words;
     dict* dictionary;
     int* count;
 };
@@ -13,12 +13,12 @@ struct dict_rec{
     /* Used when generating the index */
     flexarray listings;
     /* Used when loading index from file */
-    unsigned long pos;
-    unsigned int len;
+    long pos;
+    int len;
 };
 
 htable htable_new(int capacity){
-    unsigned int i;
+    int i;
     htable h = emalloc(sizeof *h);
     h->capacity = capacity;
     h->num_words = 0;
@@ -41,7 +41,7 @@ static unsigned int htable_word_int(char *w){
     return result;
 }
 
-static unsigned int htable_step(htable h, unsigned int i_key){
+static unsigned int htable_step(htable h,  int i_key){
     return 1 + (i_key % (h->capacity -1));
 }
 
@@ -51,7 +51,7 @@ static unsigned int htable_step(htable h, unsigned int i_key){
  * we append another document to this array 
  * */
 int htable_insert(htable h, char *token, long docid){
-    unsigned int attempts = 0;
+    int attempts = 0;
     unsigned int insert_index = 0;
     insert_index = htable_word_int(token) % h->capacity;
     for(attempts = 0; attempts < h->capacity; attempts++){
@@ -93,27 +93,29 @@ int htable_insert(htable h, char *token, long docid){
  * @param s the value to search the hash table with.
  * @return whether the value was found or not.
  */
-int htable_search(htable h, char* search_term){
-    unsigned int i;
+unsigned int htable_search(htable h, char* search_term){
+    int i;
     unsigned int index = htable_word_int(search_term) % h->capacity;
-    unsigned int step =  htable_step(h, htable_word_int(search_term));
-
     for (i = 0; i <= h->capacity; i++){  
-        printf("Index looking at: %d\n", index);
         if (h->dictionary[index].word == NULL){
             return 0;
         } 
         else if(strcmp( h->dictionary[index].word, search_term) == 0){
-            return 1;
+            return index;
         } 
         else {
-            index = (index + step) % h->capacity;
+            index = htable_step(h, index);
         }
     }
     return 0;
-    
 }
 
+long htable_get_pos(htable h, int hash){
+    return h->dictionary[hash].pos;
+}
+int htable_get_len(htable h, int hash){
+    return h->dictionary[hash].len;
+}
 /**
  * Prints out all the dictionary stored in the hashtable and the frequency of
  * each of them.
@@ -122,7 +124,7 @@ int htable_search(htable h, char* search_term){
  * @param stream the output stream to write to.
  */
 void htable_print(htable h){
-    unsigned int i;
+    int i;
     for (i = 0; i < h->capacity; i++){
         if ( h->dictionary[i].word != NULL) {
             printf("%d: %s\n", i, h->dictionary[i].word);
@@ -132,8 +134,8 @@ void htable_print(htable h){
     }
     printf("Number of words entered: %d\n\n", h->num_words);
 }
-void htable_print_loaded(htable h, int start, int finish){
-    unsigned int i;
+void htable_print_loaded(htable h,  int start,  int finish){
+    int i;
     for (i = start; i < h->capacity && i < finish; i++){
         if ( h->dictionary[i].word != NULL) {
             printf("%s %d %lu %d\n", 
@@ -158,7 +160,7 @@ void htable_print_loaded(htable h, int start, int finish){
     */
 
 static void htable_free(htable h){
-    unsigned int i;
+    int i;
     for(i = 0; i< h->capacity; i++ ){
         if(h->dictionary[i].word != NULL){
             free(h->dictionary[i].word);
@@ -169,9 +171,9 @@ static void htable_free(htable h){
     free(h);
 }
 int htable_save(htable h) {
-    unsigned int i = 0;
-    unsigned long pos = 0;
-    unsigned int length = 0;
+    int i = 0;
+    long pos = 0;
+    int length = 0;
 
     FILE *dict_file_pointer = fopen("index/dictionary" , "w");
 
@@ -214,21 +216,22 @@ int htable_save(htable h) {
  */
 htable htable_load_from_file(FILE* dict_file, int capacity){
     /* Variables to scanf into */
-    long listing_hash;
-    char listing_word[500];
+    /* Tested via awk '{print length}' dictionary | sort -rn | head -1 */
+    int max_length = 100; 
+    int listing_hash;
+    char listing_word[max_length];
     int listing_freq;
-    unsigned long listing_pos;
+    long listing_pos;
     int listing_len;
-    char buffer_string[500];
-    int counter = 0;
+    char buffer_string[max_length];
     htable h = emalloc(sizeof *h);
     h->capacity = capacity;
     h->dictionary = emalloc(h->capacity * sizeof h->dictionary[0]);
     h->count = calloc(h->capacity, sizeof(int));
-    while (fgets(buffer_string, 500, dict_file) != NULL) {  ;
+    while (fgets(buffer_string, max_length, dict_file) != NULL) {  ;
         sscanf(
             buffer_string,
-            "%lu %s %d %lu %d",
+            "%d %s %d %lu %d",
             &listing_hash,
             listing_word,
             &listing_freq,

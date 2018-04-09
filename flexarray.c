@@ -5,8 +5,8 @@
 
 
 struct flexarrayrec {
-    unsigned int capacity;
-    unsigned int num_docs;
+     int capacity;
+     int num_docs;
     listing* listings;
 };
 
@@ -53,17 +53,17 @@ void flexarray_append(flexarray f, long id){
 
 /* Prints this flexarray */
 void flexarray_print(flexarray f) {
-    unsigned int i;
+     int i;
     for (i = 0; i < f->num_docs; i++) {
         printf("%d: %lu\t", f->listings[i].count, f->listings[i].doc_id);
 
     }
 }
 
-unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
-    unsigned int i;
-    unsigned long length = 0;
-    unsigned long first_docid = 0;
+ int flexarray_save(flexarray f, FILE* listings_file_pointer){
+     int i;
+     long length = 0;
+     long first_docid = 0;
     qsort(f->listings, f->num_docs, sizeof(listing), flexarray_compare_docid);
     
     /* compress listing docids */
@@ -72,7 +72,7 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
     for (i = 0; i < f->num_docs; i++) {
 
         if(i > 0){ /* only save listing id difference */
-            length += (unsigned long) fprintf(
+            length += ( long) fprintf(
                 listings_file_pointer,
                 "%lu %d ", 
                 f->listings[i].doc_id - first_docid,
@@ -80,7 +80,7 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
             );
         }
         else{
-            length+= (unsigned long)  fprintf(
+            length+= ( long)  fprintf(
                 listings_file_pointer,
                 "%lu %d ", 
                 f->listings[i].doc_id,
@@ -88,7 +88,7 @@ unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer){
             );
         }
     }
-    length += (unsigned long) fprintf(listings_file_pointer, "\n");
+    length += ( long) fprintf(listings_file_pointer, "\n");
     flexarray_free(f);
     return length;
 }

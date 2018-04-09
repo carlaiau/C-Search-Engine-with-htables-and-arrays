@@ -10,7 +10,7 @@ extern void flexarray_print(flexarray f);
 
 extern long flexarray_get_last_id(flexarray f);
 extern void flexarray_updatecount(flexarray f);
-extern unsigned int flexarray_save(flexarray f, FILE* listings_file_pointer);
+extern  int flexarray_save(flexarray f, FILE* listings_file_pointer);
 
 extern int flexarray_compare_docid(const void* first, const void* second);
 #endif
