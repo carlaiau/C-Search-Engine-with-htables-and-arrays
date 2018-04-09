@@ -61,8 +61,12 @@ void flexarray_append_count_known(flexarray f, long id, int count){
 void flexarray_print(flexarray f) {
      int i;
     for (i = 0; i < f->num_docs; i++) {
-        printf("%d: %lu\t", f->listings[i].count, f->listings[i].doc_id);
+        printf("%lu: %d\t", f->listings[i].doc_id, f->listings[i].count);
+        if(i % 5 == 0){
+            printf("\n");        
+        }
     }
+    printf("\nTotal: %d\n\n", f->num_docs);
 }
 
  int flexarray_save(flexarray f, FILE* listings_file_pointer){

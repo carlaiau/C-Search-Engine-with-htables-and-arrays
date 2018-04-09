@@ -29,12 +29,10 @@ flexarray search_get_listings(long pos, int len){
     fread(buffer, 1, len, listings_file);
     buffer[len - 1] = '\0';
     token = strtok(buffer, " ");
-    
     while(token != NULL){
         if(i == 0){
             sscanf(token, "%lu", &first_docid);
             current_docid = first_docid;
-            printf("First Doc ID: %lu\n", first_docid);
         }
         else if(i % 2 == 0){
             sscanf(token, "%lu", &current_docid);
@@ -42,7 +40,6 @@ flexarray search_get_listings(long pos, int len){
         }
         else{
             sscanf(token, "%d", &wordcount);
-            //printf("%lu => %d\n", current_docid, wordcount);
             flexarray_append_count_known(f, current_docid, wordcount);
         }
         token = strtok(NULL, " ");
