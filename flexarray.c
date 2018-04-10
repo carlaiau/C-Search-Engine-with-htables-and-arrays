@@ -3,14 +3,13 @@
 #include "mylib.h"
 #include "flexarray.h"
 
-
-struct flexarrayrec {
-     int capacity;
-     int num_docs;
+typedef struct flexarrayrec {
+    int capacity;
+    int num_docs;
     listing* listings;
 };
 
-struct listing_rec {
+typedef struct listing_rec {
     int count;
     long doc_id;
 };
@@ -35,7 +34,10 @@ void flexarray_updatecount(flexarray f) {
 /* Returns the last written doc_id for this term */
 long flexarray_get_last_id(flexarray f) {
     return f->listings[f->num_docs - 1].doc_id;
+}
 
+int flexarray_get_num_docs(flexarray f){
+    return f->num_docs;
 }
 /* Adds a new doc_id for this term */
 void flexarray_append(flexarray f, long id){
@@ -115,4 +117,20 @@ int flexarray_compare_docid(const void* first, const void* second) {
     } else {
         return 0;
     }
+}
+
+/* binary searches the docid list and returns the posting count */
+int flexarray_get_wordcount(long docid, flexarray f, int start, int finish){
+    int midpoint = (finish + start) / 2;
+
+    if(finish < start){
+        return -1; 
+    }   
+    else if((f->listings[midpoint].doc_id > docid)){ 
+        return flexarray_get_wordcount(docid, f->listings, start, midpoint - 1); 
+    } else if(f->listings[midpoint].doc_id < docid){ 
+        return flexarray_get_wordcount(docid, f->listings, midpoint + 1, finish);
+    }else {
+        return f->listings[midpoint].count;
+    }   
 }

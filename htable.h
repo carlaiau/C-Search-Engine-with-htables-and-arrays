@@ -22,4 +22,5 @@ extern htable   htable_load_from_file(FILE* dict_file, int capacity);
 
 extern long htable_get_pos(htable h, int hash);
 extern int htable_get_len(htable h, int hash);
+extern int htable_get_freq(htable h, int hash);
 #endif

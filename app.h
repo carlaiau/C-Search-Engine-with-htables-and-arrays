@@ -1,7 +1,6 @@
 #ifndef APP_H_
 #define APP_H_
 
-#include <getopt.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

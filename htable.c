@@ -116,6 +116,10 @@ long htable_get_pos(htable h, int hash){
 int htable_get_len(htable h, int hash){
     return h->dictionary[hash].len;
 }
+
+int htable_get_freq(htable h, int hash){
+    return h->dictionary[hash].freq;
+}
 /**
  * Prints out all the dictionary stored in the hashtable and the frequency of
  * each of them.

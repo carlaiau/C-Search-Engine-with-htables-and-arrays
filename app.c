@@ -7,7 +7,6 @@
 */
 int main(int argc, char **argv){
     char buffer[BUFFER_SIZE];
-    size_t charSize = 1;
     char* token;
     char* temp_token;
     int term_count = 0;
@@ -15,10 +14,8 @@ int main(int argc, char **argv){
     char** terms;
     int i;
     int inner_i;
-    unsigned int hash;
-    htable dict;
-    flexarray listings;
 
+    htable dict;
     if(argc > 0){
         if(strcmp(argv[1], "parse") == 1){
             fprintf(stderr, "Parsing! input file: %s\n\n", argv[2]);
@@ -46,7 +43,7 @@ int main(int argc, char **argv){
 			            }
                     }
                     temp_token[inner_i] = '\0';
-                    if(term_count == term_max -1){
+                    if(term_count == term_max - 1){
                         term_max *= 2;
                         terms = erealloc(terms, sizeof(terms[0]) * term_max);
                     }
@@ -54,18 +51,11 @@ int main(int argc, char **argv){
                     strcpy(terms[term_count++], temp_token);    
                     token = strtok(NULL, " ");
                 }
-                for(i = 0; i < term_count; i++){        
-                    /* for each term search the hash table and get the listings */
-                    hash = htable_search(dict, terms[i]);
-                    if(hash){
-                        listings = search_get_listings(htable_get_pos(dict, hash), htable_get_len(dict, hash));
-                        printf("results for %s\n\n", terms[i]);
-                        flexarray_print(listings);                        
+                if(term_count > 0){
+                    search_for_terms(dict, terms, term_count);
+                    for(i = 0; i < term_count; i++){
+                        free(terms[i]);
                     }
-                    else{
-                        printf("%s Not Found!\n", terms[i]);
-                    }
-                    free(terms[i]);
                 }
                 free(temp_token);
                 free(terms);
@@ -73,7 +63,11 @@ int main(int argc, char **argv){
                 term_count = 0;
             }
         }
-        else if( strcmp(argv[1], "help") == 0 || strcmp(argv[1], "-h") == 0){
+        else if( strcmp(argv[1], "help") == 0 
+            || strcmp(argv[1], "-h") == 0
+            || strcmp(argv[1], "man") == 0 
+            ){
+
             fprintf(stderr, "\nUsage:\nparse\tfile_to_parse > output_file\n"); 
             fprintf(stderr, "index\tfile_to_index (Indexes will be created in index folder)\n");
             fprintf(stderr, "search\tQuery to search for will be taken from stdin (Indexes will be loaded from index folder)\n");  
