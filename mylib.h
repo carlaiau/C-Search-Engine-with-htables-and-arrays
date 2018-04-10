@@ -1,6 +1,6 @@
 #ifndef MYLIB_H_
 #define MYLIB_H_
-
+#include <ctype.h>
 #include <stddef.h>
 
 extern void *emalloc(size_t);

@@ -1,7 +1,11 @@
 #include "index.h"
 
 #define BUFFER_SIZE 4048
-#define NUM_WORDS 250000 /* It's 218943, but indexs quicker with a bit of mem overflow */
+/* 
+It's 218943, but indexs quicker with a bit of mem overflow.
+This needs to be expanded further to reduce collision probability
+*/
+#define NUM_WORDS 250000 
 #define NUM_DOCS 175000 /* 173252 via grep wc -l */
 
 struct key_pair_rec {

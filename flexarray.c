@@ -15,7 +15,6 @@ struct listing_rec {
     long doc_id;
 };
 
-
 /* Initialises new flexarray */
 flexarray flexarray_new(){
     flexarray f = emalloc(sizeof(f));
@@ -70,16 +69,14 @@ void flexarray_print(flexarray f) {
 }
 
  int flexarray_save(flexarray f, FILE* listings_file_pointer){
-     int i;
-     long length = 0;
-     long first_docid = 0;
+    int i;
+    long length = 0;
+    long first_docid = 0;
     qsort(f->listings, f->num_docs, sizeof(listing), flexarray_compare_docid);
-    
     /* compress listing docids */
     first_docid = f->listings[0].doc_id;
 
     for (i = 0; i < f->num_docs; i++) {
-
         if(i > 0){ /* only save listing id difference */
             length += ( long) fprintf(
                 listings_file_pointer,

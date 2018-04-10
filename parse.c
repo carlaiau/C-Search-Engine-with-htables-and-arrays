@@ -6,8 +6,8 @@
 #define BUFFER_SIZE 10000
 
 static void output_id(char* token){
-	 int i;
-	 int len = strlen(token);
+	int i;
+	int len = strlen(token);
 	if(len > 0){
 		printf("\n");
 	}
@@ -20,9 +20,9 @@ static void output_id(char* token){
 }
 
 static void output_clean(char *token){
-	 int i;
+	int i;
 	/* local var rather than double look */
-	 int len = strlen(token);
+	int len = strlen(token);
 	char previous_printed_char = '\n';
 	/* Make sure token is not an & */	
 	if(strcmp(token, "&amp") != 0 && len > 1){

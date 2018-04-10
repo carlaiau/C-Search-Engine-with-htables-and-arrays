@@ -14,13 +14,24 @@ htable search_load_index(){
     return dict;
 }
 
+
+/**
+ * Retrieves the flexarray associated with the specific dictionary word
+ * from the index listing file
+ *
+ * @param pos, the position of the flexarray within the file.
+ * @param len, the length of the flexarray within the file.
+ * 
+ * @return flexarray. A flexarray of listings containing the docid and occurances
+ * of all the documents that match the queried term.
+ */
 flexarray search_get_listings(long pos, int len){
     /* Tested with awk '{print length}' listings | sort -rn | head -1 */
     FILE *listings_file = fopen("index/listings", "r");
     int i = 0;
     long first_docid;
     long current_docid;
-    int wordcount = 0;
+    int times_word_found = 0;
     char buffer[len];
     char* token;
     flexarray f = flexarray_new();
@@ -39,8 +50,8 @@ flexarray search_get_listings(long pos, int len){
             current_docid += first_docid;
         }
         else{
-            sscanf(token, "%d", &wordcount);
-            flexarray_append_count_known(f, current_docid, wordcount);
+            sscanf(token, "%d", &times_word_found);
+            flexarray_append_count_known(f, current_docid, times_word_found);
         }
         token = strtok(NULL, " ");
         i++;
