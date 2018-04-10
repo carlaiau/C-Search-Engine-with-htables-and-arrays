@@ -220,7 +220,7 @@ int htable_save(htable h) {
  */
 htable htable_load_from_file(FILE* dict_file, int capacity){
     /* Variables to scanf into */
-    int max_length = 100; /* awk '{print length}' dictionary | sort -rn | head -1 */
+    size_t max_length = 100; /* awk '{print length}' dictionary | sort -rn | head -1 */
     int listing_hash;
     char listing_word[max_length];
     int listing_freq;

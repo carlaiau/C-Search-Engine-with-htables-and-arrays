@@ -17,6 +17,8 @@ typedef struct document_rec document;
 
 extern htable search_load_index();
 extern void search_for_terms(htable dict, char** terms, int term_count);
+
 extern flexarray search_get_listings(long pos, int len);
 
+extern documents_get_wordcount(long docid, document* documents, int start, int finish);
 #endif

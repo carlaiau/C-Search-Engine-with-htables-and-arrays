@@ -1,6 +1,4 @@
 #include "app.h"
-
-#define BUFFER_SIZE 4048
 /* 
     This is the main application file where 
     everything is going to be called from
@@ -13,6 +11,7 @@ int main(int argc, char **argv){
     int term_max = 10;
     char** terms;
     int i;
+    int len;
     int inner_i;
 
     htable dict;
@@ -35,9 +34,10 @@ int main(int argc, char **argv){
                 while(token != NULL) {
                     /* Test to make sure this is valid first */
                     /* Remove Non Alphabetical */
-                    temp_token = emalloc( (strlen(token) + 1) * sizeof(token[0]));
+                    len = strlen(token);
+                    temp_token = emalloc( ( len + 1) * sizeof(token[0]));
                     inner_i = 0;
-			        for(i = 0; i < strlen(token); i++){   
+			        for(i = 0; i < len; i++){   
 				        if(isalpha(token[i])){
 				            temp_token[inner_i++] = tolower(token[i]);
 			            }
@@ -47,7 +47,7 @@ int main(int argc, char **argv){
                         term_max *= 2;
                         terms = erealloc(terms, sizeof(terms[0]) * term_max);
                     }
-                    terms[term_count] = emalloc( (strlen(temp_token) + 1) * sizeof(temp_token[0]));
+                    terms[term_count] = emalloc( (len + 1) * sizeof(temp_token[0]));
                     strcpy(terms[term_count++], temp_token);    
                     token = strtok(NULL, " ");
                 }

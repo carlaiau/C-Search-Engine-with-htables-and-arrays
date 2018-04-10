@@ -11,6 +11,8 @@
 #include "index.h"
 #include "search.h"
 
+#define BUFFER_SIZE 4048
+
 extern int main(int argc, char *argv []);
 
 #endif

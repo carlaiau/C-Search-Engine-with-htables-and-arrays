@@ -4,6 +4,7 @@
         "stdio.h": "c",
         "mylib.h": "c",
         "search.h": "c",
-        "htable.h": "c"
+        "htable.h": "c",
+        "app.h": "c"
     }
 }

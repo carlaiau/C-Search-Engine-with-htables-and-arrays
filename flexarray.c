@@ -3,16 +3,6 @@
 #include "mylib.h"
 #include "flexarray.h"
 
-typedef struct flexarrayrec {
-    int capacity;
-    int num_docs;
-    listing* listings;
-};
-
-typedef struct listing_rec {
-    int count;
-    long doc_id;
-};
 
 /* Initialises new flexarray */
 flexarray flexarray_new(){
@@ -127,10 +117,12 @@ int flexarray_get_wordcount(long docid, flexarray f, int start, int finish){
         return -1; 
     }   
     else if((f->listings[midpoint].doc_id > docid)){ 
-        return flexarray_get_wordcount(docid, f->listings, start, midpoint - 1); 
-    } else if(f->listings[midpoint].doc_id < docid){ 
-        return flexarray_get_wordcount(docid, f->listings, midpoint + 1, finish);
-    }else {
+        return flexarray_get_wordcount(docid, f, start, midpoint - 1); 
+    } 
+    else if(f->listings[midpoint].doc_id < docid){ 
+        return flexarray_get_wordcount(docid, f, midpoint + 1, finish);
+    }
+    else {
         return f->listings[midpoint].count;
     }   
 }

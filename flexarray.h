@@ -1,8 +1,17 @@
 #ifndef FLEXARRAY_H_
 #define FLEXARRAY_H_
 
-typedef struct flexarrayrec *flexarray;
-typedef struct listing_rec listing;
+typedef struct listing_rec{
+    int count;
+    long doc_id;
+} listing;
+
+typedef struct flexarrayrec{
+    int capacity;
+    int num_docs;
+    listing* listings;
+} *flexarray;
+
 
 extern flexarray flexarray_new();
 extern void flexarray_append(flexarray f, long id);
