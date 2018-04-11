@@ -35,7 +35,7 @@ extern int flexarray_compare_tf_idf(const void* first, const void* second);
 
 extern void flexarray_print(flexarray f);
 void flexarray_print_merged_results(flexarray f); 
-
+extern char* stringify_merged_results_docid(long docid);
 extern void flexarray_free(flexarray f);
 
 #endif

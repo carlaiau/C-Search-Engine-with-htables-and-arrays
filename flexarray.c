@@ -77,8 +77,8 @@ void flexarray_print(flexarray f) {
 void flexarray_print_merged_results(flexarray f) {
     int i;
     //for (i = 0; i < f->num_docs; i++) {
-        for (i = 0; i < 5 && f->num_docs; i++) {
-        printf("%lu: %f\n", f->listings[i].doc_id, f->listings[i].tf_idf);
+    for (i = 0; i < 5 && i < f->num_docs; i++) {
+        printf("%s\t%f\n", stringify_merged_results_docid(f->listings[i].doc_id), f->listings[i].tf_idf);
     }
     printf("\nTotal: %d\n\n", f->num_docs);
 }
@@ -165,6 +165,15 @@ int flexarray_get_wordcount(long docid, flexarray f, int start, int finish){
     }   
 }
 
-/* char* decompress_flexarray_docid(long doc_id){
-    
-}*/
+char* stringify_merged_results_docid(long docid){
+    char* decompressed_id = emalloc(15 * sizeof(char));
+    sprintf(decompressed_id, "WSJ%lu", docid);
+    decompressed_id[13] = decompressed_id[12];
+    decompressed_id[12] = decompressed_id[11];
+    decompressed_id[11] = decompressed_id[10];
+    decompressed_id[10] = decompressed_id[9];
+    decompressed_id[9] = '-'; 
+    return decompressed_id;
+}
+
+//WSJ8711100022

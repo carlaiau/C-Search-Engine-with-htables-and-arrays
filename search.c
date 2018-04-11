@@ -72,15 +72,13 @@ void search_for_terms(htable dict, char** terms, int term_count){
     int i = 0;
     int term_i;
     int merged_i = 0;
-    int smallest_length = INT_MAX;
+    int smallest_length;
     int smallest_listing_index;
     unsigned int hash;
     flexarray all_listings[term_count];
     search_term search_terms[term_count];
 
     flexarray merged_results = flexarray_new();
-    
-
     document* all_document_wcs = load_word_count();
 
     /* retrieve the listings arrays */
@@ -101,7 +99,11 @@ void search_for_terms(htable dict, char** terms, int term_count){
     }
     /* determine smallest listing array */
     for(term_i = 0; term_i < term_count; term_i++){
-        if(all_listings[term_i]->num_docs < smallest_length){
+        if(term_i == 0){
+            smallest_length = flexarray_get_num_docs(all_listings[term_i]);
+            smallest_listing_index = term_i;
+        }
+        else if(all_listings[term_i]->num_docs < smallest_length){
             smallest_length = flexarray_get_num_docs(all_listings[term_i]);
             smallest_listing_index = term_i;
         } 
@@ -148,11 +150,9 @@ void search_for_terms(htable dict, char** terms, int term_count){
                 /* this is the first instance of this doc_id */
                 if(term_i == 0){ 
                     flexarray_append_merged_result(merged_results, merged_i, doc_id, tf_idf);
-                    printf("First td_idf: %f\n", tf_idf);
                 }
                 else{
                     flexarray_update_merged_result(merged_results, merged_i, tf_idf);
-                    printf("Append td_idf: %f\n", tf_idf);
                 }
             }
             merged_i++;
