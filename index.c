@@ -94,7 +94,6 @@ int create_index(char* input_file){
 	for (i = 0; i < NUM_DOCS; i++) {
 		if(list_of_word_counts[i].docid != 0){
         	fprintf(
-			
 				wordcount_file_handle, "%lu %d\n", 
 				list_of_word_counts[i].docid, 
 				list_of_word_counts[i].word_count

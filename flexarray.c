@@ -12,13 +12,18 @@ flexarray flexarray_new(){
     f->listings = emalloc((f->capacity) * sizeof(listing));
     return f;
 }
-static void flexarray_free(flexarray f){
+void flexarray_free(flexarray f){
     free(f->listings);
     free(f);
 }
 /* Updates count of term in document */
 void flexarray_updatecount(flexarray f) {
-    (f->listings[f->num_docs - 1].count)++;
+    f->listings[f->num_docs - 1].count++;
+}
+
+/* Updates count of term in document */
+void flexarray_update_merged_result(flexarray f, int index, double tf_idf) {
+    f->listings[index].tf_idf += tf_idf;
 }
 
 /* Returns the last written doc_id for this term */
@@ -38,7 +43,7 @@ void flexarray_append(flexarray f, long id){
     f->listings[f->num_docs].count = 1;
     f->listings[f->num_docs++].doc_id = id;
 }
-
+/* Appending flex arrays when we know the count, used when loading listing in from disk */
 void flexarray_append_count_known(flexarray f, long id, int count){
     if (f->num_docs == f->capacity){
         f->capacity *= 2;
@@ -48,6 +53,15 @@ void flexarray_append_count_known(flexarray f, long id, int count){
     f->listings[f->num_docs++].doc_id = id;  
 }
 
+void flexarray_append_merged_result(flexarray f, int index, long id, double tf_idf){
+    if (f->num_docs == f->capacity){
+        f->capacity *= 2;
+        f->listings = erealloc(f->listings, (f->capacity) * sizeof(listing));
+    }
+    f->listings[index].tf_idf += tf_idf;
+    f->listings[index].doc_id = id;  
+    f->num_docs++;
+}
 /* Prints this flexarray */
 void flexarray_print(flexarray f) {
      int i;
@@ -56,6 +70,15 @@ void flexarray_print(flexarray f) {
         if(i % 5 == 0){
             printf("\n");        
         }
+    }
+    printf("\nTotal: %d\n\n", f->num_docs);
+}
+/* Prints this flexarray */
+void flexarray_print_merged_results(flexarray f) {
+    int i;
+    //for (i = 0; i < f->num_docs; i++) {
+        for (i = 0; i < 5 && f->num_docs; i++) {
+        printf("%lu: %f\n", f->listings[i].doc_id, f->listings[i].tf_idf);
     }
     printf("\nTotal: %d\n\n", f->num_docs);
 }
@@ -108,6 +131,21 @@ int flexarray_compare_docid(const void* first, const void* second) {
         return 0;
     }
 }
+/* Compare tf_idf. Used in qsort */
+int flexarray_compare_tf_idf(const void* first, const void* second) {
+    const listing* first_word_listing = first;
+    const listing* second_word_listing = second;
+    double first_doc_idf = first_word_listing->tf_idf;
+    double second_doc_idf = second_word_listing->tf_idf;
+
+    if (first_doc_idf < second_doc_idf) {
+        return 1;
+    } else if (first_doc_idf > second_doc_idf) {
+        return -1;
+    } else {
+        return 0;
+    }
+}
 
 /* binary searches the docid list and returns the posting count */
 int flexarray_get_wordcount(long docid, flexarray f, int start, int finish){
@@ -126,3 +164,7 @@ int flexarray_get_wordcount(long docid, flexarray f, int start, int finish){
         return f->listings[midpoint].count;
     }   
 }
+
+/* char* decompress_flexarray_docid(long doc_id){
+    
+}*/
