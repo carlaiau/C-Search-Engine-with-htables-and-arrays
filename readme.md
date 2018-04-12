@@ -10,13 +10,10 @@ Simple Data structures used are:
 
 
 ## Compile using:
-
- 
     gcc -W -Wall -ansi -o2 -lm *.c -o executable_name
 
 
 ## Parse
-
     ./executable_name parse file_name
 
 will parse the filename to stdout.
@@ -24,7 +21,6 @@ will parse the filename to stdout.
 Approximate execution time 1 minutes.
 
 ## Index
-
     ./executable_name index parsed_file_name
 
 will create three index files from this parsed input file:
@@ -35,12 +31,9 @@ will create three index files from this parsed input file:
  
 
 You need to ensure there is a folder relative to where you're executing called index for the indexes to be written too.
+Approximate execution time 2 minutes.
 
 ## Search
-
-Approximate execution time 2 minutes.
- 
-
     ./executable_name search
 
 Will listen on stdin until EOF, therefore we can pipe a line separated query file to this command. The executable must be run with the indexes relative to the executable file. Please change directory to **/home/cshome/c/caiau/info-ass** and run the executable from here. Index folder is set as 775, and index files within as 644.
