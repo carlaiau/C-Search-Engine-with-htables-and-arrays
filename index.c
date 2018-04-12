@@ -40,11 +40,11 @@ int create_index(char* input_file){
         return 1;
     }	
     
-	/* Instantiate the htable */
     inverted_index = htable_new(NUM_WORDS);
 	
 	/*Pseduo 2D Array of docid <-> word_count pairs */
 	list_of_word_counts = emalloc(NUM_DOCS * sizeof(list_of_word_counts[0]));
+	
     /* read each line into the buffer */
     while(fgets( buffer, BUFFER_SIZE, parsed_file_handle) != NULL){
 		char *token = strtok(buffer, "");		

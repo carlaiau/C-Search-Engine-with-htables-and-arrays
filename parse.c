@@ -5,6 +5,7 @@
 
 #define BUFFER_SIZE 10000
 
+/* This function is called when we need to output the cleaned ID */
 static void output_id(char* token){
 	int i;
 	int len = strlen(token);
@@ -19,6 +20,7 @@ static void output_id(char* token){
 	printf("\n");
 }
 
+/* This function is called when we need to output the cleaned Non ID */
 static void output_clean(char *token){
 	int i;
 	/* local var rather than double look */
@@ -64,7 +66,7 @@ static void output_clean(char *token){
 
 
 
-
+/* Overall Parser, nothing fancy, probably inefficient as hell */
 int parse(char* input_filename){
 	int id = 0; /* expecting id, date bool */
 	FILE *file_handle;
@@ -75,7 +77,6 @@ int parse(char* input_filename){
         fprintf(stderr, "Unable to open input!\n");
         return 1;
     }
-	
 	/* read each line into the buffer */
     while(fgets( buffer, BUFFER_SIZE, file_handle) != NULL){
     	/* splits based on delimitering strings */
@@ -99,7 +100,6 @@ int parse(char* input_filename){
 			token = strtok(NULL, delim);
 		}
 	}
-	
     fclose(file_handle);  
 	return 0;
 }

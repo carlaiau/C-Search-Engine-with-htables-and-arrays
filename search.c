@@ -8,14 +8,13 @@ struct document_rec{
     int count; 
 };
 
-struct search_term_rec{
-    char* term;
-    double idf;
-};
-
-
-
-/* This is the intial loading of the hash table from file */
+/* 
+ * Loads htable
+ * 
+ * returns htable
+ * 
+ * Procedure    Loads hash table saved at index/dictionary 
+ */
 htable search_load_index(){
     htable dict;
     FILE *dictionary_file = fopen("index/dictionary", "r");
@@ -27,10 +26,17 @@ htable search_load_index(){
     return dict;
 }
 
+/*
+ * Loads the word count file
+ * 
+ * returns array of documents
+ * 
+ * Procedure    Loads the word count document saved at
+ *              index/wordcount
+ */
 document* load_word_count(){
     int counter = 0;
     int index = 0;
-    
     int max_len = 20; /* No document ID and word count exceeds this */
     long doc_id;
     int word_count;
@@ -42,7 +48,6 @@ document* load_word_count(){
         fprintf(stderr, "Unable to open index!\n Please ensure that the \"index\" is relative to where you're executing \n");
         return NULL;
     }
-    
     while(fgets(buffer, max_len, wordcount_file)){
         token = strtok(buffer, " ");
         while(token != NULL) {
@@ -55,19 +60,38 @@ document* load_word_count(){
                 all_document_wcs[index++].count = word_count;
             }
             counter++;
- 
             token = strtok(NULL, " ");
         }
-        
     }
-
     return all_document_wcs;   
-
-
 }
 
-
-/* Searchs through the dict and returns the flexarrays for each term that is returned */
+/* The Big Kahuna: This is where we do the search itself 
+ *
+ * Parameters   dict, the loaded in hashtable
+ *              terms, an array of strings
+ *              term count, the number of terms
+ * 
+ * Procedure    For each term, we do a hash for this term.
+ *              If no hash is found for any of the terms we return from the function
+ * 
+ *              For each hash that is found we obtain all the listings for this term and save
+ *              these listings into an array called all_listings.
+ *              all_listings is indexed by the index of each term within the query.
+ *              We also store the IDF of each term in an array indexed by the 
+ *              index of each term within the query.
+ *              
+ *              Next we determine the smallest listing length, and the index of this term.
+ *              We are using AND logic, so if a document does not exist in the smallest array
+ *              it does not exist in the merged results.
+ *              
+ *              for each listing in the smallest listing array we check if it exists in the other 
+ *              listing arrays, if it does, then it is added to the merged_results array, and at the same time
+ *              calculating and storing it's combined tf_idf from the multiple terms.
+ * 
+ *              We then quicksort this merged_results array on the tf_idf score and print and free.
+ *          
+ */
 void search_for_terms(htable dict, char** terms, int term_count){
     int i = 0;
     int term_i;
@@ -76,7 +100,7 @@ void search_for_terms(htable dict, char** terms, int term_count){
     int smallest_listing_index;
     unsigned int hash;
     flexarray all_listings[term_count];
-    search_term search_terms[term_count];
+    double search_term_idfs[term_count];
 
     flexarray merged_results = flexarray_new();
     document* all_document_wcs = load_word_count();
@@ -89,13 +113,13 @@ void search_for_terms(htable dict, char** terms, int term_count){
             all_listings[term_i] = search_get_listings(htable_get_pos(dict, hash), htable_get_len(dict, hash));                    
         }
         else{
+            /* Andrew this may be redundant */
             printf("%s Not Found!\n", terms[i]);
+            return;
         }
-        /* Add results term to the search_terms array */
-        search_terms[term_i].term = emalloc( (strlen(terms[term_i]) + 1) * sizeof(search_terms[term_i].term[0] ) );
-        strcpy(search_terms[term_i].term, terms[term_i]);
-        /* Add IDF */
-        search_terms[term_i].idf = log((double) NUM_DOCS_EXACT / (double) htable_get_freq(dict, hash));
+        /* Add each terms IDF to the search_terms array */
+        
+        search_term_idfs[term_i] = log((double) NUM_DOCS_EXACT / (double) htable_get_freq(dict, hash));
     }
     /* determine smallest listing array */
     for(term_i = 0; term_i < term_count; term_i++){
@@ -145,7 +169,7 @@ void search_for_terms(htable dict, char** terms, int term_count){
                 double tf = (double) curr_doc_wc[term_i] / 
                     (double) documents_get_wordcount(doc_id, all_document_wcs, 0, NUM_DOCS_EXACT);
                 
-                double tf_idf = tf * search_terms[term_i].idf;
+                double tf_idf = tf * search_term_idfs[term_i];
                 
                 /* this is the first instance of this doc_id */
                 if(term_i == 0){ 
@@ -161,17 +185,17 @@ void search_for_terms(htable dict, char** terms, int term_count){
     if(merged_i > 0){
         qsort(merged_results->listings, merged_results->num_docs, sizeof(listing), flexarray_compare_tf_idf);
         flexarray_print_merged_results(merged_results);
-        
         /* Free Everything */
         for(i = 0; i < term_count; i++){
             flexarray_free(all_listings[i]);
-            free(search_terms[i].term);
         }
         flexarray_free(merged_results);
     }
     else{
-        printf("No Results Found\n");
+        
     }
+    /* Andrew this may be redundant */
+    printf("\n");
 }
 
 
@@ -179,12 +203,13 @@ void search_for_terms(htable dict, char** terms, int term_count){
 /**
  * Retrieves the flexarray associated with the specific dictionary word
  * from the index listing file
- *
- * @param pos, the position of the flexarray within the file.
- * @param len, the length of the flexarray within the file.
  * 
- * @return flexarray. A flexarray of listings containing the docid and occurances
- * of all the documents that match the queried term.
+ *  Parameters:  pos, the position of the flexarray within the file.
+ *               len, the length of the flexarray within the file.
+ * 
+ *  Return:      flexarray. listings containing the docid
+ *  Procedure:   fseek to the exact location within the fiel, and read the correct length
+ *               Use flexarray_append_count_known as we only call it once per document within the array
  */
 flexarray search_get_listings(long pos, int len){
     /* Tested with awk '{print length}' listings | sort -rn | head -1 */
@@ -220,7 +245,11 @@ flexarray search_get_listings(long pos, int len){
     return f;
 }
 
-/* binary searches the wordcount list for docid and returns the document wordcount  */
+/* 
+ * Binary search of document array, 
+ * used for getting the total wordcount of a specific document.
+ * Needed for tf_idf calculation
+ */
 int documents_get_wordcount(long docid, document* documents, int start, int finish){
     int midpoint = (finish + start) / 2;
 

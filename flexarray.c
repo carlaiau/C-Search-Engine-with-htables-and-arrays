@@ -243,7 +243,15 @@ char* stringify_merged_results_docid(long docid){
 }
 
 
-/* Debugging/Development Printing functions */
+/* Print function used for outputting query results */
+void flexarray_print_merged_results(flexarray f) {
+    int i;
+    for (i = 0; i < f->num_docs; i++) {
+        printf("%s\t%f\n", stringify_merged_results_docid(f->listings[i].doc_id), f->listings[i].tf_idf);
+    }
+}
+
+/* Debugging/Development Printing function */
 void flexarray_print(flexarray f) {
      int i;
     for (i = 0; i < f->num_docs; i++) {
@@ -251,14 +259,6 @@ void flexarray_print(flexarray f) {
         if(i % 5 == 0){
             printf("\n");        
         }
-    }
-    printf("\nTotal: %d\n\n", f->num_docs);
-}
-void flexarray_print_merged_results(flexarray f) {
-    int i;
-    //for (i = 0; i < f->num_docs; i++) {
-    for (i = 0; i < 5 && i < f->num_docs; i++) {
-        printf("%s\t%f\n", stringify_merged_results_docid(f->listings[i].doc_id), f->listings[i].tf_idf);
     }
     printf("\nTotal: %d\n\n", f->num_docs);
 }

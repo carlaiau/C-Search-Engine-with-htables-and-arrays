@@ -1,0 +1,57 @@
+
+  
+First attempt at building a Search Engine in C. Specifically written for a set of WSJ articles from the 80s. 
+
+Simple Data structures used are:
+
+- hashtable - dict/vocab
+- flexarray - listings/postcount
+
+
+
+## Compile using:
+
+ 
+    gcc -W -Wall -ansi -o2 *.c -o executable_name
+
+
+## Parse
+
+    ./executable_name parse file_name
+
+will parse the filename to stdout.
+
+Approximate execution time 1 minutes.
+
+## Index
+
+    ./executable_name index parsed_file_name
+
+will create three index files from this parsed input file:
+
+ - index/dictionary
+ - index/listings
+ - index/wordcount
+ 
+
+You need to ensure there is a folder relative to where you're executing called index for the indexes to be written too.
+
+## Search
+
+Approximate execution time 2 minutes.
+ 
+
+    ./executable_name search
+
+Will listen on stdin until EOF, therefore we can pipe a line separated query file to this command. The executable must be run with the indexes relative to the executable file. Please change directory to **/home/cshome/c/caiau/info-ass** and run the executable from here.
+
+execution time, 3 seconds to perform the 50 queries in test-search.txt file
+    
+## Notes
+
+  
+if you do not want blank lines between each result please comment out line 197 of search
+
+if you do not want "term not found" please comment out line 117 of search.
+
+I would like to add better program management around the creation and loading of indexes. Ideally you can index to a specific dir, and also search against a specific dir rather than having to cd but I got lazy.
