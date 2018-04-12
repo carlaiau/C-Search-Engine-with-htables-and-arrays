@@ -45,8 +45,7 @@ execution time, 3 seconds to perform the 50 queries in test-search.txt file
 I would like to add better program management around the creation and loading of indexes. Ideally you can index to a specific dir, and also search against a specific dir rather than having to cd but I got lazy.
 
 Potential Bug, when running via hex some of the DOC_IDs are spitting out two ?? after them. I can't replicate this issue when running on local Mac OSX, but this will break automated testing, if it still present. I am compiling with 
-
-|e-dir=/usr/include/c++/4.2.1
-|Apple LLVM version 8.1.0 (clang-802.0.42)
+  e-dir=/usr/include/c++/4.2.1
+  Apple LLVM version 8.1.0 (clang-802.0.42)
 
 If that changes anything?
