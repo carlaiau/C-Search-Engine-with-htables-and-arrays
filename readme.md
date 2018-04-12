@@ -49,11 +49,6 @@ execution time, 3 seconds to perform the 50 queries in test-search.txt file
     
 ## Notes
 
-  
-if you do not want blank lines between each result please comment out line 197 of search
-
-if you do not want "term not found" please comment out line 117 of search.
-
 I would like to add better program management around the creation and loading of indexes. Ideally you can index to a specific dir, and also search against a specific dir rather than having to cd but I got lazy.
 
 Potential Bug, when running via hex some of the DOC_IDs are spitting out two ?? after them. I can't replicate this issue when running on local Mac OSX, but this will break automated testing, if it still present. I am compiling with 
