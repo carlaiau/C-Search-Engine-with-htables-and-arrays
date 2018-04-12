@@ -1,8 +1,9 @@
 data/*
 output/*
 built/*
-index/*
+index/dictionary
+index/listings
+index/wordcount
 parsed/*
 *.xml
 *.xml
-*.txt
