@@ -100,11 +100,11 @@ void search_for_terms(htable dict, char** terms, int term_count){
     /* determine smallest listing array */
     for(term_i = 0; term_i < term_count; term_i++){
         if(term_i == 0){
-            smallest_length = flexarray_get_num_docs(all_listings[term_i]);
+            smallest_length = all_listings[term_i]->num_docs;
             smallest_listing_index = term_i;
         }
         else if(all_listings[term_i]->num_docs < smallest_length){
-            smallest_length = flexarray_get_num_docs(all_listings[term_i]);
+            smallest_length = all_listings[term_i]->num_docs;
             smallest_listing_index = term_i;
         } 
     }

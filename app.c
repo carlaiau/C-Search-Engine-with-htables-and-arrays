@@ -1,8 +1,24 @@
 #include "app.h"
-/* 
-    This is the main application file where 
-    everything is going to be called from
-*/
+/*
+ * The programs main method
+ * Takes in command line pseudo agruments 
+ * and takes the corresponding action 
+ * 
+ * ./executable parse <file_name>
+ * will parse the filename to stdout. 
+ * Approximate execution time 1 minutes.
+ * 
+ * ./executable index <parsed_file_name>
+ * will create three index files from this parsed input file.
+ * You need to ensure there is a folder relative to where you're executing called index for the indexes to be written too.
+ * Approximate execution time 2 minutes.
+ * 
+ * ./executable search 
+ * Will listen on stdin until EOF, therefore we can pipe a line seperated query file to this.
+ * The executable must be run with the indexs relative to the executable file.
+ * 
+ * 
+ */
 int main(int argc, char **argv){
     char buffer[BUFFER_SIZE];
     char* token;

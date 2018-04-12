@@ -17,6 +17,7 @@ struct dict_rec{
     int len;
 };
 
+/* new htable creation */
 htable htable_new(int capacity){
     int i;
     htable h = emalloc(sizeof *h);
@@ -31,8 +32,19 @@ htable htable_new(int capacity){
     }
     return h;
 }
-
-
+/* free htable */
+static void htable_free(htable h){
+    int i;
+    for(i = 0; i< h->capacity; i++ ){
+        if(h->dictionary[i].word != NULL){
+            free(h->dictionary[i].word);
+        }
+    }
+    free(h->dictionary);
+    free(h->count);
+    free(h);
+}
+/* Hashing functions. Thanks COSC242! */
 static unsigned int htable_word_int(char *w){
     unsigned int result = 0;
     while(*w != '\0'){
@@ -40,16 +52,27 @@ static unsigned int htable_word_int(char *w){
     }
     return result;
 }
-
 static unsigned int htable_step(htable h,  int i_key){
     return 1 + (i_key % (h->capacity -1));
 }
 
 /* 
- * Inserted new words into the dictionary. 
- * Store related document array. If array already exists, then
- * we append another document to this array 
- * */
+ * Used during indexing
+ * 
+ * Parameters: h htable to insert into
+ *             token, char* the word
+ *             docid, long the docid
+ * Returns:    int, a pseudo boolean, 0 for fail, 1 for complete
+ * 
+ * Procedure:  Use hash function to determine where to insert word
+ *             If key at hash is NULL, then this is a new word into the dictionary.
+ *             Save the word into the dicitionay and create a new flexarray of listings for it.
+ *
+ *             If key at hash is the same as token, then we check whether the last inserted docid
+ *             is the current docid, if it is (which means another term within the same document), 
+ *             we just update the count on this listing array. Otherwise if docid is a new docid, 
+ *             we create another listing within the flexarray otherwise we update the count on the current flexarray.
+ */ 
 int htable_insert(htable h, char *token, long docid){
     int attempts = 0;
     unsigned int insert_index = 0;
@@ -89,9 +112,10 @@ int htable_insert(htable h, char *token, long docid){
 /**
  * Searches the hash table for the given value.
  *
- * @param h the htable to be searched.
- * @param s the value to search the hash table with.
- * @return whether the value was found or not.
+ * Parameters h the htable to be searched.
+ *            search_term the string to search for
+ *
+ * Returns the index
  */
 unsigned int htable_search(htable h, char* search_term){
     int i;
@@ -110,70 +134,18 @@ unsigned int htable_search(htable h, char* search_term){
     return 0;
 }
 
-long htable_get_pos(htable h, int hash){
-    return h->dictionary[hash].pos;
-}
-int htable_get_len(htable h, int hash){
-    return h->dictionary[hash].len;
-}
-
-int htable_get_freq(htable h, int hash){
-    return h->dictionary[hash].freq;
-}
-/**
- * Prints out all the dictionary stored in the hashtable and the frequency of
- * each of them.
- *
- * @param h the htable to get the  from.
- * @param stream the output stream to write to.
+/*
+ * Used during indexing 
+ * 
+ * Paramters:   htable to save
+ * Returns:     Int, Pseudo boolean, failure if can't open file pointers. Which will happen if 
+ *              index directory does not exist or is not accessible
+ * 
+ * Procedure:   For every entry in the hash table that is not null we print
+ *              into the dictionary file, the hash, the word, frequency and
+ *              the position and the length of the corresponding listings
+ *              that are been saved to the listings file.
  */
-void htable_print(htable h){
-    int i;
-    for (i = 0; i < h->capacity; i++){
-        if ( h->dictionary[i].word != NULL) {
-            printf("%d: %s\n", i, h->dictionary[i].word);
-            flexarray_print(h->dictionary[i].listings);
-            printf("\n\n");
-        }
-    }
-    printf("Number of words entered: %d\n\n", h->num_words);
-}
-void htable_print_loaded(htable h,  int start,  int finish){
-    int i;
-    for (i = start; i < h->capacity && i < finish; i++){
-        if ( h->dictionary[i].word != NULL) {
-            printf("%s %d %lu %d\n", 
-                h->dictionary[i].word,
-                h->dictionary[i].freq,
-                h->dictionary[i].pos,
-                h->dictionary[i].len
-            );
-        }
-    }
-}
-/* 
-    Dictionay will be saved to a text file in the format
-    hash word freq pos len
-    
-    pos corresponds to the position that this words listings start in the 
-    listings file.
-    len corresponds to the length of this words listings 
-
-    pos and len are based on what is returned from the flex array print 
-    function.
-    */
-
-static void htable_free(htable h){
-    int i;
-    for(i = 0; i< h->capacity; i++ ){
-        if(h->dictionary[i].word != NULL){
-            free(h->dictionary[i].word);
-        }
-    }
-    free(h->dictionary);
-    free(h->count);
-    free(h);
-}
 int htable_save(htable h) {
     int i = 0;
     long pos = 0;
@@ -212,11 +184,20 @@ int htable_save(htable h) {
 }
 
 /* 
- * Load Dictionary from index/file into hashtable, 
- * no need to calculate hash insertion position as this was stored on
- * index creation.
- * We store the position and len of the associated listing flex array
- * so that we can query the location of the fle array straight from disk 
+ * Used during searching.
+ * 
+ * Parameters:  dict_file, the file pointer of whee the dict is stored
+ *              capacity, the size of the hashtable to create 
+ * 
+ * Returns:     the hashtable
+ * 
+ * Procedure:   Load Dictionary from index/file into hashtable, 
+ *              no need to calculate hash insertion position as this was stored on
+ *              index creation.
+ *              This hashtable has more fields than the hash table created when indexing
+ *              This is because we need to store the positiong and length of the associated
+ *              listings flex array, so that we can query the location of the fle array 
+ *              straight from disk using fseek
  */
 htable htable_load_from_file(FILE* dict_file, int capacity){
     /* Variables to scanf into */
@@ -248,4 +229,45 @@ htable htable_load_from_file(FILE* dict_file, int capacity){
         h->dictionary[listing_hash].len = listing_len;
     }   
     return h;
+}
+
+
+
+/* Trivial functions to make other code more readable */
+long htable_get_pos(htable h, int hash){
+    return h->dictionary[hash].pos;
+}
+int htable_get_len(htable h, int hash){
+    return h->dictionary[hash].len;
+}
+int htable_get_freq(htable h, int hash){
+    return h->dictionary[hash].freq;
+}
+
+/*
+Debug functions for printing/dumping of htable contents 
+*/
+void htable_print(htable h){
+    int i;
+    for (i = 0; i < h->capacity; i++){
+        if ( h->dictionary[i].word != NULL) {
+            printf("%d: %s\n", i, h->dictionary[i].word);
+            flexarray_print(h->dictionary[i].listings);
+            printf("\n\n");
+        }
+    }
+    printf("Number of words entered: %d\n\n", h->num_words);
+}
+void htable_print_loaded(htable h,  int start,  int finish){
+    int i;
+    for (i = start; i < h->capacity && i < finish; i++){
+        if ( h->dictionary[i].word != NULL) {
+            printf("%s %d %lu %d\n", 
+                h->dictionary[i].word,
+                h->dictionary[i].freq,
+                h->dictionary[i].pos,
+                h->dictionary[i].len
+            );
+        }
+    }
 }
