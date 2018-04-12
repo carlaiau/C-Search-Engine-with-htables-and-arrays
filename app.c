@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 
     htable dict;
     if(argc > 0){
-        if(strcmp(argv[1], "parse") == 1){
+        if(strcmp(argv[1], "parse") == 0){
             fprintf(stderr, "Parsing! input file: %s\n\n", argv[2]);
             parse(argv[2]);
         

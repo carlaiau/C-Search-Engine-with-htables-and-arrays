@@ -12,7 +12,7 @@ Simple Data structures used are:
 ## Compile using:
 
  
-    gcc -W -Wall -ansi -o2 *.c -o executable_name
+    gcc -W -Wall -ansi -o2 -lm *.c -o executable_name
 
 
 ## Parse
